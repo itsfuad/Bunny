@@ -91,6 +91,9 @@ func (rb *RadioButton) Draw(program uint32) {
 }
 
 func (rb *RadioButton) HandleMouse(x, y float64, action Action, width, height int) {
+	if rb.IsSelected {
+		return // Already selected, do nothing
+	}
 	xNorm := float32((x/float64(width))*2 - 1)
 	yNorm := float32(1 - (y/float64(height))*2)
 	if action == Press && xNorm >= rb.X && xNorm <= rb.X+rb.Width && yNorm >= rb.Y && yNorm <= rb.Y+rb.Height {

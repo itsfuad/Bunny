@@ -19,6 +19,16 @@ func main() {
 	radio.OnSelectFunc = func() {
 		fmt.Println("Radio button selected!")
 	}
+
+	checkbox := ui.NewCheckbox(-0.8, 0.2, 0.1, 0.1, [4]float32{0.8, 0.8, 0.8, 1.0})
+	checkbox.OnCheckFunc = func() {
+		if checkbox.IsChecked {
+			fmt.Println("Checkbox checked!")
+		} else {
+			fmt.Println("Checkbox unchecked!")
+		}
+	}
+
 	button := ui.NewButton(-0.3, -0.5, 0.6, 0.2, [4]float32{0.4, 0.6, 1.0, 1.0}, "Click Me")
 	button.OnClickFunc = func() {
 		fmt.Println("Button clicked!")
@@ -30,7 +40,7 @@ func main() {
 	}
 
 	// Create a panel containing the components.
-	root := ui.NewPanel(-0.9, -0.9, 1.8, 1.8, [4]float32{0.2, 0.2, 0.2, 1.0}, label, input, radio, button, slider)
+	root := ui.NewPanel(-0.9, -0.9, 1.8, 1.8, [4]float32{0.2, 0.2, 0.2, 1.0}, label, input, radio, checkbox, button, slider)
 
 	// Set up event callbacks.
 	window.SetMouseButtonCallback(func(btn ui.MouseButton, action ui.Action, mods ui.ModifierKey) {
