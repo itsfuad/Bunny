@@ -111,6 +111,33 @@ func (s *Slider) HandleMouse(x, y float64, action glfw.Action, width, height int
 	}
 }
 
+func (s *Slider) GetBounds() (x, y, w, h float32) {
+	return s.X, s.Y, s.Width, s.Height
+}
+
+func (s *Slider) SetPosition(x, y float32) {
+	s.X, s.Y = x, y
+	// Recreate TrackVAO with new vertices
+	gl.DeleteVertexArrays(1, &s.TrackVAO)
+	var trackVAO, trackVBO uint32
+	gl.GenVertexArrays(1, &trackVAO)
+	gl.GenBuffers(1, &trackVBO)
+	gl.BindVertexArray(trackVAO)
+	vertices := []float32{
+		x, y,
+		x + s.Width, y,
+		x + s.Width, y + s.Height,
+		x, y + s.Height,
+	}
+	gl.BindBuffer(gl.ARRAY_BUFFER, trackVBO)
+	gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
+	gl.VertexAttribPointer(0, 2, gl.FLOAT, false, 2*4, nil)
+	gl.EnableVertexAttribArray(0)
+	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
+	gl.BindVertexArray(0)
+	s.TrackVAO = trackVAO
+}
+
 func (s *Slider) HandleCursorPos(x, y float64, width, height int) {
 	if s.Dragging {
 		xNorm := float32((x/float64(width))*2 - 1)

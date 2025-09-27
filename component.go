@@ -7,4 +7,5 @@ type Component interface {
 	HandleMouse(x, y float64, action glfw.Action, width, height int)
 	HandleCursorPos(x, y float64, width, height int)
 	GetBounds() (x, y, w, h float32)
+	SetPosition(x, y float32)
 }

@@ -55,8 +55,39 @@ func (b *Button) HandleMouse(x, y float64, action glfw.Action, width, height int
 	}
 }
 
+func (b *Button) HandleCursorPos(x, y float64, width, height int) {
+	// Buttons don't handle cursor position
+}
+
+func (b *Button) GetBounds() (x, y, w, h float32) {
+	return b.X, b.Y, b.Width, b.Height
+}
+
 func (b *Button) OnClick() {
 	if b.OnClickFunc != nil {
 		b.OnClickFunc()
 	}
+}
+
+func (b *Button) SetPosition(x, y float32) {
+	b.X, b.Y = x, y
+	// Recreate VAO with new vertices
+	gl.DeleteVertexArrays(1, &b.VAO)
+	var VAO, VBO uint32
+	gl.GenVertexArrays(1, &VAO)
+	gl.GenBuffers(1, &VBO)
+	gl.BindVertexArray(VAO)
+	vertices := []float32{
+		x, y,
+		x + b.Width, y,
+		x + b.Width, y + b.Height,
+		x, y + b.Height,
+	}
+	gl.BindBuffer(gl.ARRAY_BUFFER, VBO)
+	gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
+	gl.VertexAttribPointer(0, 2, gl.FLOAT, false, 2*4, nil)
+	gl.EnableVertexAttribArray(0)
+	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
+	gl.BindVertexArray(0)
+	b.VAO = VAO
 }
