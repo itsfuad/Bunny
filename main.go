@@ -1,52 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"runtime"
-	"strings"
 
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/go-gl/glfw/v3.3/glfw"
 )
-
-func createShader(source string, shaderType uint32) uint32 {
-	shader := gl.CreateShader(shaderType)
-	csource, free := gl.Strs(source + "\x00")
-	gl.ShaderSource(shader, 1, csource, nil)
-	free()
-	gl.CompileShader(shader)
-	var status int32
-	gl.GetShaderiv(shader, gl.COMPILE_STATUS, &status)
-	if status == gl.FALSE {
-		var logLength int32
-		gl.GetShaderiv(shader, gl.INFO_LOG_LENGTH, &logLength)
-		shaderLog := strings.Repeat("\x00", int(logLength+1))
-		gl.GetShaderInfoLog(shader, logLength, nil, gl.Str(shaderLog))
-		log.Fatal("Shader compilation failed:", shaderLog)
-	}
-	return shader
-}
-
-func createProgram(vertexSource, fragmentSource string) uint32 {
-	vertexShader := createShader(vertexSource, gl.VERTEX_SHADER)
-	fragmentShader := createShader(fragmentSource, gl.FRAGMENT_SHADER)
-	program := gl.CreateProgram()
-	gl.AttachShader(program, vertexShader)
-	gl.AttachShader(program, fragmentShader)
-	gl.LinkProgram(program)
-	var status int32
-	gl.GetProgramiv(program, gl.LINK_STATUS, &status)
-	if status == gl.FALSE {
-		var logLength int32
-		gl.GetProgramiv(program, gl.INFO_LOG_LENGTH, &logLength)
-		programLog := strings.Repeat("\x00", int(logLength+1))
-		gl.GetProgramInfoLog(program, logLength, nil, gl.Str(programLog))
-		log.Fatal("Program linking failed:", programLog)
-	}
-	gl.DeleteShader(vertexShader)
-	gl.DeleteShader(fragmentShader)
-	return program
-}
 
 func init() {
 	// GLFW requires that the main thread is the one that initializes GLFW and creates windows.
@@ -65,8 +26,9 @@ void main() {
 const fragmentShaderSource = `
 #version 330 core
 out vec4 FragColor;
+uniform vec4 color;
 void main() {
-    FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+    FragColor = color;
 }
 `
 
@@ -105,23 +67,19 @@ func main() {
 	// Create shader program.
 	program := createProgram(vertexShaderSource, fragmentShaderSource)
 
-	// Set up vertex data and buffers.
-	var VAO, VBO uint32
-	gl.GenVertexArrays(1, &VAO)
-	gl.GenBuffers(1, &VBO)
-	gl.BindVertexArray(VAO)
-	vertices := []float32{
-		-0.5, -0.5, // bottom left
-		 0.5, -0.5, // bottom right
-		 0.5,  0.5, // top right
-		-0.5,  0.5, // top left
+	// Create a button.
+	button := NewButton(-0.5, -0.5, 1.0, 1.0, [4]float32{1.0, 1.0, 1.0, 1.0})
+	button.OnClickFunc = func() {
+		fmt.Println("Button clicked!")
 	}
-	gl.BindBuffer(gl.ARRAY_BUFFER, VBO)
-	gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
-	gl.VertexAttribPointer(0, 2, gl.FLOAT, false, 2*4, nil)
-	gl.EnableVertexAttribArray(0)
-	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
-	gl.BindVertexArray(0)
+
+	// Set mouse callback.
+	window.SetMouseButtonCallback(func(w *glfw.Window, btn glfw.MouseButton, action glfw.Action, mods glfw.ModifierKey) {
+		if btn == glfw.MouseButtonLeft {
+			x, y := w.GetCursorPos()
+			button.HandleMouse(x, y, action, 800, 600)
+		}
+	})
 
 	// Set the swap interval for the current OpenGL context.
 	// 1 means V-Sync is enabled, which synchronizes the frame rate with the monitor's refresh rate.
@@ -132,11 +90,8 @@ func main() {
 		// Clear the color buffer with a default color (black).
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 
-		// Draw the rectangle.
-		gl.UseProgram(program)
-		gl.BindVertexArray(VAO)
-		gl.DrawArrays(gl.TRIANGLE_FAN, 0, 4)
-		gl.BindVertexArray(0)
+		// Draw the button.
+		button.Draw(program)
 
 		// Swap the front and back buffers of the window.
 		// This displays the rendered frame and prepares for the next one.
