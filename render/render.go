@@ -1,4 +1,4 @@
-package main
+package render
 
 import (
 	"strings"
@@ -6,7 +6,7 @@ import (
 	"github.com/go-gl/gl/v3.3-core/gl"
 )
 
-func createShader(source string, shaderType uint32) uint32 {
+func CreateShader(source string, shaderType uint32) uint32 {
 	shader := gl.CreateShader(shaderType)
 	csource, free := gl.Strs(source + "\x00")
 	gl.ShaderSource(shader, 1, csource, nil)
@@ -24,9 +24,9 @@ func createShader(source string, shaderType uint32) uint32 {
 	return shader
 }
 
-func createProgram(vertexSource, fragmentSource string) uint32 {
-	vertexShader := createShader(vertexSource, gl.VERTEX_SHADER)
-	fragmentShader := createShader(fragmentSource, gl.FRAGMENT_SHADER)
+func CreateProgram(vertexSource, fragmentSource string) uint32 {
+	vertexShader := CreateShader(vertexSource, gl.VERTEX_SHADER)
+	fragmentShader := CreateShader(fragmentSource, gl.FRAGMENT_SHADER)
 	program := gl.CreateProgram()
 	gl.AttachShader(program, vertexShader)
 	gl.AttachShader(program, fragmentShader)
