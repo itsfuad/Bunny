@@ -1,9 +1,5 @@
 package ui
 
-import (
-	"github.com/go-gl/glfw/v3.3/glfw"
-)
-
 type Orientation int
 
 const (
@@ -54,14 +50,20 @@ func (sl *StackLayout) Draw(program uint32) {
 	}
 }
 
-func (sl *StackLayout) HandleMouse(x, y float64, action glfw.Action, width, height int) {
-	for _, child := range sl.Children {
-		cx, cy, cw, ch := child.GetBounds()
-		xNorm := float32((x/float64(width))*2 - 1)
-		yNorm := float32(1 - (y/float64(height))*2)
-		if xNorm >= cx && xNorm <= cx+cw && yNorm >= cy && yNorm <= cy+ch {
+func (sl *StackLayout) HandleMouse(x, y float64, action Action, width, height int) {
+	xNorm := float32((x/float64(width))*2 - 1)
+	yNorm := float32(1 - (y/float64(height))*2)
+	if action == Press {
+		for _, child := range sl.Children {
+			cx, cy, cw, ch := child.GetBounds()
+			if xNorm >= cx && xNorm <= cx+cw && yNorm >= cy && yNorm <= cy+ch {
+				child.HandleMouse(x, y, action, width, height)
+				break
+			}
+		}
+	} else {
+		for _, child := range sl.Children {
 			child.HandleMouse(x, y, action, width, height)
-			break // or handle all
 		}
 	}
 }
@@ -79,4 +81,10 @@ func (sl *StackLayout) GetBounds() (x, y, w, h float32) {
 func (sl *StackLayout) SetPosition(x, y float32) {
 	sl.X, sl.Y = x, y
 	sl.arrangeChildren() // re-arrange children
+}
+
+func (sl *StackLayout) StopDragging() {
+	for _, child := range sl.Children {
+		child.StopDragging()
+	}
 }

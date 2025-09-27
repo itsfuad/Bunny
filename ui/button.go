@@ -2,7 +2,6 @@ package ui
 
 import (
 	"github.com/go-gl/gl/v3.3-core/gl"
-	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
 type Button struct {
@@ -46,17 +45,21 @@ func (b *Button) Draw(program uint32) {
 	gl.BindVertexArray(0)
 }
 
-func (b *Button) HandleMouse(x, y float64, action glfw.Action, width, height int) {
+func (b *Button) HandleMouse(x, y float64, action Action, width, height int) {
 	// Convert mouse coords to OpenGL coords
 	xNorm := float32((x/float64(width))*2 - 1)
 	yNorm := float32(1 - (y/float64(height))*2)
-	if action == glfw.Press && xNorm >= b.X && xNorm <= b.X+b.Width && yNorm >= b.Y && yNorm <= b.Y+b.Height {
+	if action == Press && xNorm >= b.X && xNorm <= b.X+b.Width && yNorm >= b.Y && yNorm <= b.Y+b.Height {
 		b.OnClick()
 	}
 }
 
 func (b *Button) HandleCursorPos(x, y float64, width, height int) {
 	// Buttons don't handle cursor position
+}
+
+func (b *Button) StopDragging() {
+	// Buttons don't have dragging state
 }
 
 func (b *Button) GetBounds() (x, y, w, h float32) {

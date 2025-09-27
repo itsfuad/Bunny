@@ -2,7 +2,6 @@ package ui
 
 import (
 	"github.com/go-gl/gl/v3.3-core/gl"
-	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
 type Panel struct {
@@ -49,14 +48,20 @@ func (p *Panel) Draw(program uint32) {
 	}
 }
 
-func (p *Panel) HandleMouse(x, y float64, action glfw.Action, width, height int) {
-	for _, child := range p.Children {
-		cx, cy, cw, ch := child.GetBounds()
-		xNorm := float32((x/float64(width))*2 - 1)
-		yNorm := float32(1 - (y/float64(height))*2)
-		if xNorm >= cx && xNorm <= cx+cw && yNorm >= cy && yNorm <= cy+ch {
+func (p *Panel) HandleMouse(x, y float64, action Action, width, height int) {
+	xNorm := float32((x/float64(width))*2 - 1)
+	yNorm := float32(1 - (y/float64(height))*2)
+	if action == Press {
+		for _, child := range p.Children {
+			cx, cy, cw, ch := child.GetBounds()
+			if xNorm >= cx && xNorm <= cx+cw && yNorm >= cy && yNorm <= cy+ch {
+				child.HandleMouse(x, y, action, width, height)
+				break
+			}
+		}
+	} else {
+		for _, child := range p.Children {
 			child.HandleMouse(x, y, action, width, height)
-			break
 		}
 	}
 }
@@ -92,4 +97,10 @@ func (p *Panel) SetPosition(x, y float32) {
 	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
 	gl.BindVertexArray(0)
 	p.VAO = VAO
+}
+
+func (p *Panel) StopDragging() {
+	for _, child := range p.Children {
+		child.StopDragging()
+	}
 }

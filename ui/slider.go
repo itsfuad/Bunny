@@ -1,8 +1,9 @@
 package ui
 
 import (
+	"fmt"
+
 	"github.com/go-gl/gl/v3.3-core/gl"
-	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
 type Slider struct {
@@ -100,13 +101,13 @@ func (s *Slider) Update(value float32) {
 	}
 }
 
-func (s *Slider) HandleMouse(x, y float64, action glfw.Action, width, height int) {
+func (s *Slider) HandleMouse(x, y float64, action Action, width, height int) {
 	xNorm := float32((x/float64(width))*2 - 1)
 	yNorm := float32(1 - (y/float64(height))*2)
 	knobX := s.X + s.Value*(s.Width-s.KnobWidth)
-	if action == glfw.Press && xNorm >= knobX && xNorm <= knobX+s.KnobWidth && yNorm >= s.Y && yNorm <= s.Y+s.Height {
+	if action == Press && xNorm >= knobX && xNorm <= knobX+s.KnobWidth && yNorm >= s.Y && yNorm <= s.Y+s.Height {
 		s.Dragging = true
-	} else if action == glfw.Release {
+	} else if action == Release {
 		s.Dragging = false
 	}
 }
@@ -139,8 +140,8 @@ func (s *Slider) SetPosition(x, y float32) {
 }
 
 func (s *Slider) HandleCursorPos(x, y float64, width, height int) {
-	if s.Dragging {
-		xNorm := float32((x/float64(width))*2 - 1)
+	xNorm := float32((x/float64(width))*2 - 1)
+	if x >= 0 && x <= float64(width) && y >= 0 && y <= float64(height) && s.Dragging && xNorm >= s.X && xNorm <= s.X+s.Width {
 		relX := xNorm - s.X
 		if relX < 0 {
 			relX = 0
@@ -150,4 +151,9 @@ func (s *Slider) HandleCursorPos(x, y float64, width, height int) {
 		newValue := relX / (s.Width - s.KnobWidth)
 		s.Update(newValue)
 	}
+}
+
+func (s *Slider) StopDragging() {
+	fmt.Printf("Slider: StopDragging called, setting Dragging = false\n")
+	s.Dragging = false
 }

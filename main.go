@@ -4,8 +4,6 @@ import (
 	"fmt"
 
 	"bunny/ui"
-
-	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
 func main() {
@@ -27,14 +25,14 @@ func main() {
 	root := ui.NewPanel(-0.9, -0.9, 1.8, 1.8, [4]float32{0.2, 0.2, 0.2, 1.0}, button, slider)
 
 	// Set up event callbacks.
-	window.SetMouseButtonCallback(func(w *glfw.Window, btn glfw.MouseButton, action glfw.Action, mods glfw.ModifierKey) {
-		if btn == glfw.MouseButtonLeft {
-			x, y := w.GetCursorPos()
+	window.SetMouseButtonCallback(func(btn ui.MouseButton, action ui.Action, mods ui.ModifierKey) {
+		if btn == ui.MouseButtonLeft {
+			x, y := window.GetCursorPos()
 			root.HandleMouse(x, y, action, 800, 600)
 		}
 	})
 
-	window.SetCursorPosCallback(func(w *glfw.Window, xpos, ypos float64) {
+	window.SetCursorPosCallback(func(xpos, ypos float64) {
 		root.HandleCursorPos(xpos, ypos, 800, 600)
 	})
 
