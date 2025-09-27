@@ -154,3 +154,7 @@ func (s *Slider) HandleCursorPos(x, y float64, width, height int) {
 func (s *Slider) StopDragging() {
 	s.Dragging = false
 }
+
+func (s *Slider) HandleKey(key Key, action Action, mods ModifierKey) {
+	// Sliders don't handle keys
+}

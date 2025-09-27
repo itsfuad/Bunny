@@ -42,11 +42,48 @@ const (
 	ModNumLock  ModifierKey = 0x0020
 )
 
+type Key int
+
+const (
+	KeySpace     Key = 32
+	KeyA         Key = 65
+	KeyB         Key = 66
+	KeyC         Key = 67
+	KeyD         Key = 68
+	KeyE         Key = 69
+	KeyF         Key = 70
+	KeyG         Key = 71
+	KeyH         Key = 72
+	KeyI         Key = 73
+	KeyJ         Key = 74
+	KeyK         Key = 75
+	KeyL         Key = 76
+	KeyM         Key = 77
+	KeyN         Key = 78
+	KeyO         Key = 79
+	KeyP         Key = 80
+	KeyQ         Key = 81
+	KeyR         Key = 82
+	KeyS         Key = 83
+	KeyT         Key = 84
+	KeyU         Key = 85
+	KeyV         Key = 86
+	KeyW         Key = 87
+	KeyX         Key = 88
+	KeyY         Key = 89
+	KeyZ         Key = 90
+	KeyBackspace Key = 259
+	KeyLeft      Key = 263
+	KeyRight     Key = 262
+	KeyEnter     Key = 257
+)
+
 // BunnyWindow wraps the GLFW window and provides abstracted callbacks
 type BunnyWindow struct {
 	window              *glfw.Window
 	mouseButtonCallback func(btn MouseButton, action Action, mods ModifierKey)
 	cursorPosCallback   func(xpos, ypos float64)
+	keyCallback         func(key Key, action Action, mods ModifierKey)
 	root                Component
 }
 
@@ -70,6 +107,15 @@ func (w *BunnyWindow) SetCursorPosCallback(cb func(xpos, ypos float64)) {
 
 func (w *BunnyWindow) GetCursorPos() (float64, float64) {
 	return w.window.GetCursorPos()
+}
+
+func (w *BunnyWindow) SetKeyCallback(cb func(key Key, action Action, mods ModifierKey)) {
+	w.keyCallback = cb
+	w.window.SetKeyCallback(func(gw *glfw.Window, key glfw.Key, scancode int, action glfw.Action, mods glfw.ModifierKey) {
+		if w.keyCallback != nil {
+			w.keyCallback(Key(key), Action(action), ModifierKey(mods))
+		}
+	})
 }
 
 func init() {
@@ -145,6 +191,7 @@ func Run(window *BunnyWindow, root Component) {
 	// Main loop.
 	for !window.window.ShouldClose() {
 		// Clear the color buffer.
+		gl.ClearColor(0.1, 0.1, 0.1, 1.0) // Dark gray background
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 
 		// Draw the root component.

@@ -49,20 +49,9 @@ func (p *Panel) Draw(program uint32) {
 }
 
 func (p *Panel) HandleMouse(x, y float64, action Action, width, height int) {
-	xNorm := float32((x/float64(width))*2 - 1)
-	yNorm := float32(1 - (y/float64(height))*2)
-	if action == Press {
-		for _, child := range p.Children {
-			cx, cy, cw, ch := child.GetBounds()
-			if xNorm >= cx && xNorm <= cx+cw && yNorm >= cy && yNorm <= cy+ch {
-				child.HandleMouse(x, y, action, width, height)
-				break
-			}
-		}
-	} else {
-		for _, child := range p.Children {
-			child.HandleMouse(x, y, action, width, height)
-		}
+	// All children get the mouse event to handle focus loss
+	for _, child := range p.Children {
+		child.HandleMouse(x, y, action, width, height)
 	}
 }
 
@@ -102,5 +91,11 @@ func (p *Panel) SetPosition(x, y float32) {
 func (p *Panel) StopDragging() {
 	for _, child := range p.Children {
 		child.StopDragging()
+	}
+}
+
+func (p *Panel) HandleKey(key Key, action Action, mods ModifierKey) {
+	for _, child := range p.Children {
+		child.HandleKey(key, action, mods)
 	}
 }

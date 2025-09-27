@@ -7,11 +7,12 @@ import (
 type Button struct {
 	X, Y, Width, Height float32
 	Color               [4]float32
+	Text                string
 	OnClickFunc         func()
 	VAO                 uint32
 }
 
-func NewButton(x, y, w, h float32, color [4]float32) *Button {
+func NewButton(x, y, w, h float32, color [4]float32, text string) *Button {
 	var VAO, VBO uint32
 	gl.GenVertexArrays(1, &VAO)
 	gl.GenBuffers(1, &VBO)
@@ -32,6 +33,7 @@ func NewButton(x, y, w, h float32, color [4]float32) *Button {
 	return &Button{
 		X: x, Y: y, Width: w, Height: h,
 		Color: color,
+		Text:  text,
 		VAO:   VAO,
 	}
 }
@@ -42,6 +44,29 @@ func (b *Button) Draw(program uint32) {
 	gl.Uniform4f(colorLoc, b.Color[0], b.Color[1], b.Color[2], b.Color[3])
 	gl.BindVertexArray(b.VAO)
 	gl.DrawArrays(gl.TRIANGLE_FAN, 0, 4)
+
+	// Draw border
+	borderColor := [4]float32{0.3, 0.3, 0.3, 1.0}
+	gl.Uniform4fv(colorLoc, 1, &borderColor[0])
+	gl.DrawArrays(gl.LINE_LOOP, 0, 4)
+
+	// Draw text if present
+	if len(b.Text) > 0 {
+		charWidth := b.Width / float32(len(b.Text)+1) // Leave some padding
+		if charWidth > b.Height*0.6 {
+			charWidth = b.Height * 0.4 // Limit character width for buttons
+		}
+		charHeight := b.Height * 0.4
+
+		// Center the text
+		textWidth := float32(len(b.Text)) * charWidth
+		textX := b.X + (b.Width-textWidth)/2
+		textY := b.Y + b.Height*0.3
+		textColor := [4]float32{0.1, 0.1, 0.1, 1.0} // Dark text
+
+		DrawBitmapText(program, b.Text, textX, textY, charWidth, charHeight, textColor)
+	}
+
 	gl.BindVertexArray(0)
 }
 
@@ -60,6 +85,10 @@ func (b *Button) HandleCursorPos(x, y float64, width, height int) {
 
 func (b *Button) StopDragging() {
 	// Buttons don't have dragging state
+}
+
+func (b *Button) HandleKey(key Key, action Action, mods ModifierKey) {
+	// Buttons don't handle keys
 }
 
 func (b *Button) GetBounds() (x, y, w, h float32) {

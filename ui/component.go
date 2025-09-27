@@ -7,4 +7,5 @@ type Component interface {
 	GetBounds() (x, y, w, h float32)
 	SetPosition(x, y float32)
 	StopDragging()
+	HandleKey(key Key, action Action, mods ModifierKey)
 }

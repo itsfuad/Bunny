@@ -88,3 +88,9 @@ func (sl *StackLayout) StopDragging() {
 		child.StopDragging()
 	}
 }
+
+func (sl *StackLayout) HandleKey(key Key, action Action, mods ModifierKey) {
+	for _, child := range sl.Children {
+		child.HandleKey(key, action, mods)
+	}
+}
