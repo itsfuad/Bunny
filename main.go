@@ -73,12 +73,24 @@ func main() {
 		fmt.Println("Button clicked!")
 	}
 
+	// Create a slider.
+	slider := NewSlider(-0.8, 0.6, 1.6, 0.1, [4]float32{0.5, 0.5, 0.5, 1.0}, [4]float32{0.8, 0.8, 0.8, 1.0})
+	slider.OnValueChange = func(v float32) {
+		fmt.Printf("Slider value: %.2f\n", v)
+	}
+
 	// Set mouse callback.
 	window.SetMouseButtonCallback(func(w *glfw.Window, btn glfw.MouseButton, action glfw.Action, mods glfw.ModifierKey) {
 		if btn == glfw.MouseButtonLeft {
 			x, y := w.GetCursorPos()
 			button.HandleMouse(x, y, action, 800, 600)
+			slider.HandleMouse(x, y, action, 800, 600)
 		}
+	})
+
+	// Set cursor position callback for dragging.
+	window.SetCursorPosCallback(func(w *glfw.Window, xpos, ypos float64) {
+		slider.HandleCursorPos(xpos, ypos, 800, 600)
 	})
 
 	// Set the swap interval for the current OpenGL context.
@@ -92,6 +104,9 @@ func main() {
 
 		// Draw the button.
 		button.Draw(program)
+
+		// Draw the slider.
+		slider.Draw(program)
 
 		// Swap the front and back buffers of the window.
 		// This displays the rendered frame and prepares for the next one.
