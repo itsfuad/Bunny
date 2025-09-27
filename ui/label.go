@@ -38,6 +38,16 @@ func (l *Label) Draw(program uint32) {
 	gl.BindVertexArray(0)
 	gl.DeleteVertexArrays(1, &VAO)
 	gl.DeleteBuffers(1, &VBO)
+
+	// Draw text if present
+	if len(l.Text) > 0 {
+		charWidth := l.Width / float32(len(l.Text))
+		charHeight := l.Height * 0.8
+		textWidth := float32(len(l.Text)) * charWidth
+		textX := l.X + (l.Width-textWidth)/2
+		textY := l.Y + l.Height*0.1
+		DrawBitmapText(program, l.Text, textX, textY, charWidth, charHeight, l.Color)
+	}
 }
 
 func (l *Label) HandleMouse(x, y float64, action Action, width, height int) {
