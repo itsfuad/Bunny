@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"fmt"
 	"runtime"
 
 	"bunny/render"
@@ -135,7 +134,6 @@ func Run(window *BunnyWindow, root Component) {
 	window.root = root
 	// Set cursor enter callback to stop dragging when mouse enters the window
 	window.window.SetCursorEnterCallback(func(gw *glfw.Window, entered bool) {
-		fmt.Printf("Cursor enter: entered=%v\n", entered)
 		if entered && window.root != nil {
 			window.root.StopDragging()
 		}

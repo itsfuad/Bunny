@@ -1,8 +1,6 @@
 package ui
 
 import (
-	"fmt"
-
 	"github.com/go-gl/gl/v3.3-core/gl"
 )
 
@@ -154,6 +152,5 @@ func (s *Slider) HandleCursorPos(x, y float64, width, height int) {
 }
 
 func (s *Slider) StopDragging() {
-	fmt.Printf("Slider: StopDragging called, setting Dragging = false\n")
 	s.Dragging = false
 }
