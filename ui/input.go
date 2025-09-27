@@ -124,32 +124,38 @@ func (i *Input) Draw(program uint32) {
 func (i *Input) HandleMouse(x, y float64, action Action, width, height int) {
 	xNorm := float32((x/float64(width))*2 - 1)
 	yNorm := float32(1 - (y/float64(height))*2)
-	if action == Press {
-		if xNorm >= i.X && xNorm <= i.X+i.Width && yNorm >= i.Y && yNorm <= i.Y+i.Height {
-			i.IsFocused = true
-			// Calculate cursor position based on click
-			relX := xNorm - i.X - 0.02 // Account for text padding
-			var charWidth float32
-			if len(i.Text) > 0 {
-				charWidth = (i.Width - 0.04) / float32(len(i.Text)+1)
-				if charWidth > i.Height*0.7 {
-					charWidth = i.Height * 0.7
-				}
-			} else {
-				// When no text, use a reasonable default character width
-				charWidth = i.Height * 0.5
-			}
-			i.CursorPos = int(relX / charWidth)
-			if i.CursorPos > len(i.Text) {
-				i.CursorPos = len(i.Text)
-			}
-			if i.CursorPos < 0 {
-				i.CursorPos = 0
-			}
-		} else {
-			i.IsFocused = false // Lose focus when clicking outside
-		}
+	if action != Press {
+		return
 	}
+	if xNorm >= i.X && xNorm <= i.X+i.Width && yNorm >= i.Y && yNorm <= i.Y+i.Height {
+		i.IsFocused = true
+		i.CursorPos = i.calculateCursorPos(xNorm)
+	} else {
+		i.IsFocused = false // Lose focus when clicking outside
+	}
+}
+
+// calculateCursorPos calculates the cursor position based on the normalized x coordinate.
+func (i *Input) calculateCursorPos(xNorm float32) int {
+	relX := xNorm - i.X - 0.02 // Account for text padding
+	var charWidth float32
+	if len(i.Text) > 0 {
+		charWidth = (i.Width - 0.04) / float32(len(i.Text)+1)
+		if charWidth > i.Height*0.7 {
+			charWidth = i.Height * 0.7
+		}
+	} else {
+		// When no text, use a reasonable default character width
+		charWidth = i.Height * 0.5
+	}
+	cursorPos := int(relX / charWidth)
+	if cursorPos > len(i.Text) {
+		cursorPos = len(i.Text)
+	}
+	if cursorPos < 0 {
+		cursorPos = 0
+	}
+	return cursorPos
 }
 
 func (i *Input) HandleCursorPos(x, y float64, width, height int) {
@@ -172,30 +178,31 @@ func (i *Input) HandleKey(key Key, action Action, mods ModifierKey) {
 	if !i.IsFocused || action != Press {
 		return
 	}
-	if key >= KeyA && key <= KeyZ {
-		char := string(rune(key))
-		if mods&ModShift != 0 {
-			char = strings.ToUpper(char)
-		}
-		i.Text = i.Text[:i.CursorPos] + char + i.Text[i.CursorPos:]
-		i.CursorPos++
-	} else if key == KeySpace {
-		// Handle space key
-		i.Text = i.Text[:i.CursorPos] + " " + i.Text[i.CursorPos:]
-		i.CursorPos++
-	} else if key >= 48 && key <= 57 {
-		// Handle number keys (ASCII 48-57 = '0'-'9')
-		char := string(rune(key))
-		i.Text = i.Text[:i.CursorPos] + char + i.Text[i.CursorPos:]
-		i.CursorPos++
-	} else if key == KeyBackspace && i.CursorPos > 0 {
+	switch {
+	case key >= KeyA && key <= KeyZ:
+		i.insertChar(key, mods)
+	case key == KeySpace:
+		i.insertChar(Key(' '), 0)
+	case key >= 48 && key <= 57:
+		i.insertChar(key, 0)
+	case key == KeyBackspace && i.CursorPos > 0:
 		i.Text = i.Text[:i.CursorPos-1] + i.Text[i.CursorPos:]
 		i.CursorPos--
-	} else if key == KeyLeft && i.CursorPos > 0 {
+	case key == KeyLeft && i.CursorPos > 0:
 		i.CursorPos--
-	} else if key == KeyRight && i.CursorPos < len(i.Text) {
+	case key == KeyRight && i.CursorPos < len(i.Text):
 		i.CursorPos++
-	} else if key == KeyEnter {
+	case key == KeyEnter:
 		// For single line, perhaps submit or something, but for now, do nothing
 	}
+}
+
+// insertChar inserts a character at the current cursor position.
+func (i *Input) insertChar(key Key, mods ModifierKey) {
+	char := string(rune(key))
+	if key >= KeyA && key <= KeyZ && mods&ModShift != 0 {
+		char = strings.ToUpper(char)
+	}
+	i.Text = i.Text[:i.CursorPos] + char + i.Text[i.CursorPos:]
+	i.CursorPos++
 }

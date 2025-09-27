@@ -11,7 +11,7 @@ func main() {
 	window := ui.CreateWindow(800, 600, "Bunny UI Library")
 
 	// Create UI components.
-	label := ui.NewLabel(-0.8, 0.8, 1.6, 0.1, "Bunny UI Demo", [4]float32{0.0, 0.0, 0.0, 1.0})
+	label := ui.NewLabel(-0.8, 0.8, 1.6, 0.1, "Bunny UI Demo", [4]float32{1.0, 1.0, 1.0, 1.0})
 	input := ui.NewInput(-0.8, 0.4, 1.6, 0.1, [4]float32{0.9, 0.9, 0.9, 1.0})
 	radio := ui.NewRadioButton(-0.1, 0.1, 0.08, 0.08, [4]float32{0.8, 0.8, 0.8, 1.0})
 	radio.OnSelectFunc = func() {

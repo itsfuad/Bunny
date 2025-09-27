@@ -15,7 +15,6 @@ func NewLabel(x, y, w, h float32, text string, color [4]float32) *Label {
 }
 
 func (l *Label) Draw(program uint32) {
-	// TODO: render text
 	// For now, draw a colored rectangle as placeholder
 	vertices := []float32{
 		l.X, l.Y,
