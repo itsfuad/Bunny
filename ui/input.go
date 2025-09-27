@@ -10,6 +10,7 @@ type Input struct {
 	X, Y, Width, Height float32
 	Text                string
 	Color               [4]float32
+	BackgroundColor     [4]float32
 	IsFocused           bool
 	CursorPos           int
 	VAO                 uint32
@@ -35,9 +36,10 @@ func NewInput(x, y, w, h float32, color [4]float32) *Input {
 	gl.BindVertexArray(0)
 	return &Input{
 		X: x, Y: y, Width: w, Height: h,
-		Color:     color,
-		CursorPos: 0,
-		VAO:       VAO,
+		Color:           [4]float32{0.1, 0.1, 0.1, 1.0}, // Default text color
+		BackgroundColor: color,
+		CursorPos:       0,
+		VAO:             VAO,
 	}
 }
 
@@ -50,7 +52,7 @@ func (i *Input) Draw(program uint32) {
 		focusedColor := [4]float32{1.0, 1.0, 1.0, 1.0} // White when focused
 		gl.Uniform4fv(colorUniform, 1, &focusedColor[0])
 	} else {
-		gl.Uniform4fv(colorUniform, 1, &i.Color[0])
+		gl.Uniform4fv(colorUniform, 1, &i.BackgroundColor[0])
 	}
 	gl.BindVertexArray(i.VAO)
 	gl.DrawArrays(gl.TRIANGLE_FAN, 0, 4)
@@ -69,7 +71,7 @@ func (i *Input) Draw(program uint32) {
 		charHeight := i.Height * 0.7
 		textX := i.X + 0.02
 		textY := i.Y + i.Height*0.15
-		textColor := [4]float32{0.1, 0.1, 0.1, 1.0} // Dark text
+		textColor := i.Color // Use component's color for text
 
 		DrawBitmapText(program, i.Text, textX, textY, charWidth, charHeight, textColor)
 	}

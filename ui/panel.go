@@ -7,6 +7,7 @@ import (
 type Panel struct {
 	X, Y, Width, Height float32
 	Color               [4]float32
+	BackgroundColor     [4]float32
 	Children            []Component
 	VAO                 uint32
 }
@@ -30,16 +31,17 @@ func NewPanel(x, y, w, h float32, color [4]float32, children ...Component) *Pane
 	gl.BindVertexArray(0)
 	return &Panel{
 		X: x, Y: y, Width: w, Height: h,
-		Color:    color,
-		Children: children,
-		VAO:      VAO,
+		Color:           [4]float32{1.0, 1.0, 1.0, 1.0}, // Default, not used
+		BackgroundColor: color,
+		Children:        children,
+		VAO:             VAO,
 	}
 }
 
 func (p *Panel) Draw(program uint32) {
 	gl.UseProgram(program)
 	colorLoc := gl.GetUniformLocation(program, gl.Str("color\x00"))
-	gl.Uniform4f(colorLoc, p.Color[0], p.Color[1], p.Color[2], p.Color[3])
+	gl.Uniform4f(colorLoc, p.BackgroundColor[0], p.BackgroundColor[1], p.BackgroundColor[2], p.BackgroundColor[3])
 	gl.BindVertexArray(p.VAO)
 	gl.DrawArrays(gl.TRIANGLE_FAN, 0, 4)
 	gl.BindVertexArray(0)

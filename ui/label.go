@@ -8,10 +8,11 @@ type Label struct {
 	X, Y, Width, Height float32
 	Text                string
 	Color               [4]float32
+	BackgroundColor     [4]float32
 }
 
 func NewLabel(x, y, w, h float32, text string, color [4]float32) *Label {
-	return &Label{X: x, Y: y, Width: w, Height: h, Text: text, Color: color}
+	return &Label{X: x, Y: y, Width: w, Height: h, Text: text, Color: [4]float32{0.1, 0.1, 0.1, 1.0}, BackgroundColor: color}
 }
 
 func (l *Label) Draw(program uint32) {
@@ -32,7 +33,7 @@ func (l *Label) Draw(program uint32) {
 	gl.EnableVertexAttribArray(0)
 	gl.UseProgram(program)
 	colorUniform := gl.GetUniformLocation(program, gl.Str("color\x00"))
-	gl.Uniform4fv(colorUniform, 1, &l.Color[0])
+	gl.Uniform4fv(colorUniform, 1, &l.BackgroundColor[0])
 	gl.DrawArrays(gl.TRIANGLE_FAN, 0, 4)
 	gl.BindVertexArray(0)
 	gl.DeleteVertexArrays(1, &VAO)

@@ -7,6 +7,7 @@ import (
 type Button struct {
 	X, Y, Width, Height float32
 	Color               [4]float32
+	BackgroundColor     [4]float32
 	Text                string
 	OnClickFunc         func()
 	VAO                 uint32
@@ -32,16 +33,17 @@ func NewButton(x, y, w, h float32, color [4]float32, text string) *Button {
 	gl.BindVertexArray(0)
 	return &Button{
 		X: x, Y: y, Width: w, Height: h,
-		Color: color,
-		Text:  text,
-		VAO:   VAO,
+		Color:           [4]float32{0.1, 0.1, 0.1, 1.0}, // Default text color
+		BackgroundColor: color,
+		Text:            text,
+		VAO:             VAO,
 	}
 }
 
 func (b *Button) Draw(program uint32) {
 	gl.UseProgram(program)
 	colorLoc := gl.GetUniformLocation(program, gl.Str("color\x00"))
-	gl.Uniform4f(colorLoc, b.Color[0], b.Color[1], b.Color[2], b.Color[3])
+	gl.Uniform4f(colorLoc, b.BackgroundColor[0], b.BackgroundColor[1], b.BackgroundColor[2], b.BackgroundColor[3])
 	gl.BindVertexArray(b.VAO)
 	gl.DrawArrays(gl.TRIANGLE_FAN, 0, 4)
 
@@ -62,9 +64,8 @@ func (b *Button) Draw(program uint32) {
 		textWidth := float32(len(b.Text)) * charWidth
 		textX := b.X + (b.Width-textWidth)/2
 		textY := b.Y + b.Height*0.3
-		textColor := [4]float32{0.1, 0.1, 0.1, 1.0} // Dark text
 
-		DrawBitmapText(program, b.Text, textX, textY, charWidth, charHeight, textColor)
+		DrawBitmapText(program, b.Text, textX, textY, charWidth, charHeight, b.Color)
 	}
 
 	gl.BindVertexArray(0)

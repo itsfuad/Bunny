@@ -7,8 +7,8 @@ import (
 type Slider struct {
 	X, Y, Width, Height float32
 	Value               float32 // 0 to 1
-	TrackColor          [4]float32
-	KnobColor           [4]float32
+	Color               [4]float32
+	BackgroundColor     [4]float32
 	OnValueChange       func(float32)
 	TrackVAO            uint32
 	KnobVAO             uint32
@@ -45,12 +45,12 @@ func NewSlider(x, y, w, h float32, trackColor, knobColor [4]float32) *Slider {
 
 	return &Slider{
 		X: x, Y: y, Width: w, Height: h,
-		Value:      0.5,
-		TrackColor: trackColor,
-		KnobColor:  knobColor,
-		TrackVAO:   trackVAO,
-		KnobVAO:    knobVAO,
-		KnobWidth:  knobW,
+		Value:           0.5,
+		Color:           knobColor,
+		BackgroundColor: trackColor,
+		TrackVAO:        trackVAO,
+		KnobVAO:         knobVAO,
+		KnobWidth:       knobW,
 	}
 }
 
@@ -58,7 +58,7 @@ func (s *Slider) Draw(program uint32) {
 	// Draw track
 	gl.UseProgram(program)
 	colorLoc := gl.GetUniformLocation(program, gl.Str("color\x00"))
-	gl.Uniform4f(colorLoc, s.TrackColor[0], s.TrackColor[1], s.TrackColor[2], s.TrackColor[3])
+	gl.Uniform4f(colorLoc, s.BackgroundColor[0], s.BackgroundColor[1], s.BackgroundColor[2], s.BackgroundColor[3])
 	gl.BindVertexArray(s.TrackVAO)
 	gl.DrawArrays(gl.TRIANGLE_FAN, 0, 4)
 	gl.BindVertexArray(0)
@@ -80,7 +80,7 @@ func (s *Slider) Draw(program uint32) {
 	gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.DYNAMIC_DRAW)
 	gl.VertexAttribPointer(0, 2, gl.FLOAT, false, 2*4, nil)
 	gl.EnableVertexAttribArray(0)
-	gl.Uniform4f(colorLoc, s.KnobColor[0], s.KnobColor[1], s.KnobColor[2], s.KnobColor[3])
+	gl.Uniform4f(colorLoc, s.Color[0], s.Color[1], s.Color[2], s.Color[3])
 	gl.DrawArrays(gl.TRIANGLE_FAN, 0, 4)
 	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
 	gl.BindVertexArray(0)

@@ -9,6 +9,7 @@ import (
 type RadioButton struct {
 	X, Y, Width, Height float32
 	Color               [4]float32
+	BackgroundColor     [4]float32
 	IsSelected          bool
 	OnSelectFunc        func()
 	VAO                 uint32
@@ -17,7 +18,8 @@ type RadioButton struct {
 func NewRadioButton(x, y, w, h float32, color [4]float32) *RadioButton {
 	return &RadioButton{
 		X: x, Y: y, Width: w, Height: h,
-		Color: color,
+		Color:           [4]float32{0.2, 0.6, 1.0, 1.0}, // Default selected color
+		BackgroundColor: color,
 	}
 }
 
@@ -48,9 +50,8 @@ func (rb *RadioButton) Draw(program uint32) {
 	gl.VertexAttribPointer(0, 2, gl.FLOAT, false, 2*4, nil)
 	gl.EnableVertexAttribArray(0)
 
-	// Draw border with darker color
-	borderColor := [4]float32{0.3, 0.3, 0.3, 1.0}
-	gl.Uniform4fv(colorUniform, 1, &borderColor[0])
+	// Draw border with background color
+	gl.Uniform4fv(colorUniform, 1, &rb.BackgroundColor[0])
 	gl.DrawArrays(gl.LINE_LOOP, 0, int32(len(borderVertices)/2))
 
 	// If selected, draw filled inner circle
@@ -75,7 +76,7 @@ func (rb *RadioButton) Draw(program uint32) {
 		gl.VertexAttribPointer(0, 2, gl.FLOAT, false, 2*4, nil)
 		gl.EnableVertexAttribArray(0)
 
-		selectedColor := [4]float32{0.2, 0.6, 1.0, 1.0} // Blue inner circle when selected
+		selectedColor := rb.Color // Use component's color for selected inner
 		gl.Uniform4fv(colorUniform, 1, &selectedColor[0])
 		gl.DrawArrays(gl.TRIANGLE_FAN, 0, int32(len(innerVertices)/2))
 
