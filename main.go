@@ -68,31 +68,31 @@ func main() {
 	program := createProgram(vertexShaderSource, fragmentShaderSource)
 
 	// Create a button.
-	button := NewButton(0, 0, 1.0, 1.0, [4]float32{1.0, 1.0, 1.0, 1.0}) // positions will be set by layout
+	button := NewButton(-0.5, -0.5, 1.0, 1.0, [4]float32{1.0, 1.0, 1.0, 1.0})
 	button.OnClickFunc = func() {
 		fmt.Println("Button clicked!")
 	}
 
 	// Create a slider.
-	slider := NewSlider(0, 0, 1.6, 0.1, [4]float32{0.5, 0.5, 0.5, 1.0}, [4]float32{0.8, 0.8, 0.8, 1.0})
+	slider := NewSlider(-0.8, 0.6, 1.6, 0.1, [4]float32{0.5, 0.5, 0.5, 1.0}, [4]float32{0.8, 0.8, 0.8, 1.0})
 	slider.OnValueChange = func(v float32) {
 		fmt.Printf("Slider value: %.2f\n", v)
 	}
 
-	// Create a stack layout.
-	layout := NewStackLayout(-0.9, -0.9, 1.8, 1.8, VERTICAL, 0.1, button, slider)
+	// Create a panel containing the button and slider.
+	panel := NewPanel(-0.9, -0.9, 1.8, 1.8, [4]float32{0.2, 0.2, 0.2, 1.0}, button, slider)
 
 	// Set mouse callback.
 	window.SetMouseButtonCallback(func(w *glfw.Window, btn glfw.MouseButton, action glfw.Action, mods glfw.ModifierKey) {
 		if btn == glfw.MouseButtonLeft {
 			x, y := w.GetCursorPos()
-			layout.HandleMouse(x, y, action, 800, 600)
+			panel.HandleMouse(x, y, action, 800, 600)
 		}
 	})
 
 	// Set cursor position callback for dragging.
 	window.SetCursorPosCallback(func(w *glfw.Window, xpos, ypos float64) {
-		layout.HandleCursorPos(xpos, ypos, 800, 600)
+		panel.HandleCursorPos(xpos, ypos, 800, 600)
 	})
 
 	// Set the swap interval for the current OpenGL context.
@@ -104,8 +104,8 @@ func main() {
 		// Clear the color buffer with a default color (black).
 		gl.Clear(gl.COLOR_BUFFER_BIT)
 
-		// Draw the layout.
-		layout.Draw(program)
+		// Draw the panel.
+		panel.Draw(program)
 
 		// Swap the front and back buffers of the window.
 		// This displays the rendered frame and prepares for the next one.
